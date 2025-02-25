@@ -133,13 +133,17 @@ export default function Menu() {
                     }
                 );
             }
+            if (selectedSubMenu.parentId === null) {
+                setSelectedMenu("");
+            }
         }
 
-        if (addMenus === "Add Menu") {
-            getMenus();
-        } else if (selectedMenu) {
+        getMenus();
+        if (
+            selectedMenu &&
+            (addMenus !== "Delete" || selectedSubMenu.parentId !== null)
+        ) {
             getSubMenus(selectedMenu);
-            getMenus();
             dispatch(findSubMenusById(selectedMenu));
         }
         setMenuPayload({});
@@ -163,6 +167,7 @@ export default function Menu() {
         getSubMenus(value);
         setSelectedMenu(value);
         dispatch(findSubMenusById(value));
+        collapseAll()
     };
 
     const renderMenu = (data) => {
@@ -172,7 +177,8 @@ export default function Menu() {
                     <li
                         key={item?.id}
                         className={expandedItems[item.id] ? "expanded" : ""}>
-                        <div className={`flex gap-1 relative group`}>
+                        <div
+                            className={`flex gap-1 relative group whitespace-nowrap`}>
                             {item?.subMenu?.length > 0 && (
                                 <div
                                     onClick={() => {
