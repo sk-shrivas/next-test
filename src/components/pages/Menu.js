@@ -167,7 +167,10 @@ export default function Menu() {
         getSubMenus(value);
         setSelectedMenu(value);
         dispatch(findSubMenusById(value));
-        collapseAll()
+        collapseAll();
+        setMenuPayload({});
+        setAddMenus("");
+        setSelectedSubMenu({});
     };
 
     const renderMenu = (data) => {
