@@ -8,20 +8,80 @@ import MenuIconRight from "@/assets/Icons/MenuIconRight";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function Sidebar({ isOpen, setIsOpen }) {
-    const [menuOpen, setMenu] = useState("");
+    const [activeMenu, setActiveMenu] = useState("");
+    const [activeSubMenu, setActiveSubMenu] = useState("");
+
     const { subMenusById } = useSelector((state) => state.menus);
     const pathName = usePathname();
 
-    const handleMenu = (activeMenu) => {
-        if (activeMenu === menuOpen) {
-            setMenu("");
+    const handleMenu = (active, type) => {
+        if (type === "menu") {
+            if (active.id === activeMenu) {
+                setActiveMenu("");
+            } else {
+                setActiveMenu(active.id);
+            }
         } else {
-            setMenu(activeMenu);
+            if (active.id === activeSubMenu) {
+                setActiveSubMenu("");
+            } else {
+                setActiveSubMenu(active.id);
+            }
+            if (active.subMenu && active.subMenu?.length === 0) {
+                setActiveMenu("");
+            }
         }
+    };
+
+    const renderSideMenu = (type, item) => {
+        return (
+            <>
+                {!type ? (
+                    <Link
+                        href={item.href || "#"}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleMenu(item, "sub-menu");
+                        }}
+                        className={`flex items-center p-3 rounded-[16px] group font-bold ${
+                            activeSubMenu === item.id
+                                ? "text-[#101828] bg-[#9FF443]"
+                                : "text-[#667085] hover:text-white"
+                        }`}>
+                        {activeSubMenu === item.id ? (
+                            <MenuBg fill="#101828" />
+                        ) : (
+                            <MenuBorder fill="#667085" />
+                        )}
+                        <span className="flex-1 ms-3 whitespace-nowrap">
+                            {item.name}
+                        </span>
+                    </Link>
+                ) : (
+                    <button
+                        type="button"
+                        className={`flex items-center w-full p-3 text-base font-bold hover:text-white/75 ${
+                            activeMenu === item.id
+                                ? "text-white"
+                                : "text-[#667085]"
+                        }`}
+                        onClick={() => handleMenu(item, "menu")}>
+                        {activeMenu === item.id ? (
+                            <FolderBg fill="#fff" />
+                        ) : (
+                            <FolderBorder fill="#475467" />
+                        )}
+                        <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+                            {item.name}
+                        </span>
+                    </button>
+                )}
+            </>
+        );
     };
 
     return (
@@ -62,58 +122,19 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                         {subMenusById?.map((item, index) => (
                             <li
                                 key={index}
-                                className={
-                                    menuOpen === item.id
+                                className={`mb-2.5 ${
+                                    activeMenu === item.id
                                         ? "bg-slate-700 rounded-2xl py-2"
                                         : ""
-                                }>
-                                <button
-                                    type="button"
-                                    className={`flex items-center w-full p-3 text-base font-bold hover:text-white/75 ${
-                                        menuOpen === item.id
-                                            ? "text-white"
-                                            : "text-[#667085]"
-                                    }`}
-                                    onClick={() => handleMenu(item.id)}>
-                                    {menuOpen === item.id ? (
-                                        item.subMenu.length > 0 ? (
-                                            <FolderBg fill="#fff" />
-                                        ) : (
-                                            <MenuBg fill="#101828" />
-                                        )
-                                    ) : item.subMenu.length > 0 ? (
-                                        <FolderBorder fill="#475467" />
-                                    ) : (
-                                        <MenuBorder fill="#667085" />
-                                    )}
-                                    <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                                        {item.name}
-                                    </span>
-                                </button>
-                                {menuOpen === item.id && (
+                                }`}>
+                                {renderSideMenu(item?.subMenu.length > 0, item)}
+                                {activeMenu === item.id && (
                                     <ul
                                         id="dropdown-example"
                                         className={`py-2 space-y-2`}>
                                         {item.subMenu.map((subItem, idx) => (
                                             <li key={idx}>
-                                                <Link
-                                                    href={subItem.href || "#"}
-                                                    className={`flex items-center p-3 rounded-[16px] group font-bold ${
-                                                        pathName ===
-                                                        subItem.href
-                                                            ? "text-[#101828] bg-[#9FF443]"
-                                                            : "text-[#667085] hover:text-white"
-                                                    }`}>
-                                                    {pathName ===
-                                                    subItem.href ? (
-                                                        <MenuBg fill="#101828" />
-                                                    ) : (
-                                                        <MenuBorder fill="#667085" />
-                                                    )}
-                                                    <span className="flex-1 ms-3 whitespace-nowrap">
-                                                        {subItem.name}
-                                                    </span>
-                                                </Link>
+                                                {renderSideMenu(false, subItem)}
                                             </li>
                                         ))}
                                     </ul>

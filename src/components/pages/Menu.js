@@ -19,7 +19,7 @@ export default function Menu() {
     const { menus, subMenus } = useSelector((state) => state.menus);
 
     const [expandedItems, setExpandedItems] = useState({});
-    const [addMenus, setAddMenus] = useState("Add Menu");
+    const [addMenus, setAddMenus] = useState("");
     const [selectedSubMenu, setSelectedSubMenu] = useState({});
 
     const [selectedMenu, setSelectedMenu] = useState("");
@@ -95,7 +95,11 @@ export default function Menu() {
             });
         } else {
             setSelectedSubMenu({
-                parentName: item.name,
+                parentName: item.parentId
+                    ? item.name
+                    : eventType === "Save"
+                    ? item.name
+                    : "",
                 ...item,
             });
         }
@@ -139,7 +143,7 @@ export default function Menu() {
             dispatch(findSubMenusById(selectedMenu));
         }
         setMenuPayload({});
-        setAddMenus("Add Menu");
+        setAddMenus("");
         setSelectedSubMenu({});
     };
 
@@ -289,13 +293,15 @@ export default function Menu() {
                         <ul className="first">{renderMenu(subMenus)}</ul>
                     </div>
                 </div>
-                <Form
-                    selectedSubMenu={selectedSubMenu}
-                    addMenus={addMenus}
-                    menuPayload={menuPayload}
-                    handleChange={handleChange}
-                    addMensAndSubMenu={addMensAndSubMenu}
-                />
+                {addMenus && (
+                    <Form
+                        selectedSubMenu={selectedSubMenu}
+                        addMenus={addMenus}
+                        menuPayload={menuPayload}
+                        handleChange={handleChange}
+                        addMensAndSubMenu={addMensAndSubMenu}
+                    />
+                )}
             </div>
         </>
     );

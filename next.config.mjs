@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+
+    api: {
+        bodyParser: false,
+        responseLimit: false,
+        externalResolver: true,
+      },
+};
 
 export default nextConfig;
